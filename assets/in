@@ -1,0 +1,45 @@
+#!/bin/bash
+# vim: set ft=sh
+
+set -e
+
+exec 3>&1 # make stdout available as fd 3 for the result
+exec 1>&2 # redirect all output to stderr for logging
+
+source $(dirname $0)/common.sh
+
+destination=$1
+
+if [ -z "$destination" ]; then
+  echo "usage: $0 <path/to/destination>" >&2
+  exit 1
+fi
+
+mkdir -p $destination
+
+# for jq
+PATH=/usr/local/bin:$PATH
+
+payload=$(mktemp $TMPDIR/bosh-lite-resource-request.XXXXXX)
+
+cat > $payload <&0
+
+load_pubkey $payload
+
+uri=$(jq -r '.source.uri // ""' < $payload)
+name=$(jq -r '.version.name // ""' < $payload)
+
+if [ -z "$uri" ]; then
+  echo "invalid payload (missing uri):"
+  exit 1
+fi
+
+env_pool_dir=$(mktemp -d $TMPDIR/bosh-lite-resource-env-pool.XXXXXX)
+git clone $uri $env_pool_dir
+mv "$env_pool_dir/bosh-lites/claimed/$name" "$destination/env"
+echo "$name" > "$destination/name"
+
+jq -n "{
+  version: {name: \"$name\"},
+  metadata: []
+}" >&3
