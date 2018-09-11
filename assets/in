@@ -36,7 +36,11 @@ fi
 
 env_pool_dir=$(mktemp -d $TMPDIR/bosh-lite-resource-env-pool.XXXXXX)
 git clone $uri $env_pool_dir
-mv "$env_pool_dir/bosh-lites/claimed/$name" "$destination/env"
+
+if [ -f "$env_pool_dir/bosh-lites/claimed/$name" ]; then
+  mv "$env_pool_dir/bosh-lites/claimed/$name" "$destination/env"
+fi
+
 echo "$name" > "$destination/name"
 
 jq -n "{
