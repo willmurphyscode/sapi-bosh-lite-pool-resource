@@ -31,9 +31,9 @@ if [ -z "$uri" ]; then
   exit 1
 fi
 
-git clone $uri
+git clone $uri env-pool
 
-pushd sapi-env-pool > /dev/null
+pushd env-pool > /dev/null
   git remote add push-target $uri
 popd > /dev/null
 
@@ -222,7 +222,7 @@ function commit_and_push() {
   git push push-target
 }
 
->&2 cd sapi-env-pool
+>&2 cd env-pool
 
 if [ "$operation" == "claim" ]; then
   >&2 claim_random_environment $requested_input
