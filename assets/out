@@ -186,7 +186,7 @@ EOF
 
 function unclaim_bosh_lite() {
   working_pool="bosh-lites"
-  broken_pool="broken-bosh-lites"
+  broken_pool="bosh-lites-to-be-deleted"
 
   if [ $# -eq 0 ]; then
     echo "Usage: $0 env_name"
